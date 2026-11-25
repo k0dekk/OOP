@@ -31,10 +31,10 @@ class LineShape(Shape):
 class RectShape(Shape):
     def show(self, canvas):
         canvas.create_rectangle(self.xs1, self.ys1, self.xs2, self.ys2,
-                                outline=BLACK, fill=FILL_GRAY, tags="shape")
+                                outline=BLACK, fill="", tags="shape")
 
 
 class EllipseShape(Shape):
     def show(self, canvas):
         canvas.create_oval(self.xs1, self.ys1, self.xs2, self.ys2,
-                           outline=BLACK, fill="", tags="shape")
+                           outline=BLACK, fill=FILL_GRAY, tags="shape")

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from shape import PointShape, LineShape, RectShape, EllipseShape
 
-RUBBER_COLOR = "red"
+RUBBER_COLOR = "blue"
 
 
 class Editor(ABC):
@@ -17,9 +17,11 @@ class Editor(ABC):
 
 class ShapeEditor(Editor):
     shape_class = None
+    menu_index = -1
 
-    def __init__(self, shapes):
+    def __init__(self, shapes, max_shapes):
         self.shapes = shapes
+        self.max_shapes = max_shapes
         self.drawing = False
         self.xstart = self.ystart = 0
         self.xend = self.yend = 0
@@ -57,8 +59,11 @@ class ShapeEditor(Editor):
     def on_paint(self, canvas):
         canvas.delete("shape")
         for shape in self.shapes:
-            if shape:
-                shape.show(canvas)
+            shape.show(canvas)
+
+    def on_init_menu_popup(self, checks):
+        for i, var in enumerate(checks):
+            var.set(i == self.menu_index)
 
     def make_shape(self):
         shape = self.shape_class()
@@ -66,14 +71,15 @@ class ShapeEditor(Editor):
         return shape
 
     def add_shape(self, canvas, shape):
-        if None in self.shapes:
-            self.shapes[self.shapes.index(None)] = shape
+        if len(self.shapes) < self.max_shapes:
+            self.shapes.append(shape)
         else:
             canvas.bell()
 
 
 class PointEditor(ShapeEditor):
     shape_class = PointShape
+    menu_index = 0
 
     def on_lbdown(self, canvas, event):
         super().on_lbdown(canvas, event)
@@ -90,6 +96,7 @@ class PointEditor(ShapeEditor):
 
 class LineEditor(ShapeEditor):
     shape_class = LineShape
+    menu_index = 1
 
     def bounds(self):
         return self.xstart, self.ystart, self.xend, self.yend
@@ -100,10 +107,10 @@ class LineEditor(ShapeEditor):
 
 class RectEditor(ShapeEditor):
     shape_class = RectShape
+    menu_index = 2
 
     def bounds(self):
-        return (2 * self.xstart - self.xend, 2 * self.ystart - self.yend,
-                self.xend, self.yend)
+        return self.xstart, self.ystart, self.xend, self.yend
 
     def draw_trace(self, canvas, x1, y1, x2, y2):
         canvas.create_rectangle(x1, y1, x2, y2, outline=RUBBER_COLOR, tags="rubber")
@@ -111,9 +118,11 @@ class RectEditor(ShapeEditor):
 
 class EllipseEditor(ShapeEditor):
     shape_class = EllipseShape
+    menu_index = 3
 
     def bounds(self):
-        return self.xstart, self.ystart, self.xend, self.yend
+        return (2 * self.xstart - self.xend, 2 * self.ystart - self.yend,
+                self.xend, self.yend)
 
     def draw_trace(self, canvas, x1, y1, x2, y2):
         canvas.create_oval(x1, y1, x2, y2, outline=RUBBER_COLOR, tags="rubber")

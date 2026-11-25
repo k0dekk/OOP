@@ -1,30 +1,28 @@
 from editor import PointEditor, LineEditor, RectEditor, EllipseEditor
 
-ZH = 17
+ZH = 18
 MY_SHAPE_ARRAY_SIZE = ZH + 100
-TITLE = "Lab2"
 
 
 class ShapeObjectsEditor:
     def __init__(self):
-        self.pcshape = [None] * MY_SHAPE_ARRAY_SIZE
+        self.pcshape = []
         self.pse = None
 
-    def set_mode(self, window, editor, name):
-        self.pse = editor
-        window.title(f"{TITLE} - режим вводу: {name}")
+    def _start(self, editor_class):
+        self.pse = editor_class(self.pcshape, MY_SHAPE_ARRAY_SIZE)
 
-    def start_point_editor(self, window):
-        self.set_mode(window, PointEditor(self.pcshape), "крапки")
+    def start_point_editor(self):
+        self._start(PointEditor)
 
-    def start_line_editor(self, window):
-        self.set_mode(window, LineEditor(self.pcshape), "лінії")
+    def start_line_editor(self):
+        self._start(LineEditor)
 
-    def start_rect_editor(self, window):
-        self.set_mode(window, RectEditor(self.pcshape), "прямокутники")
+    def start_rect_editor(self):
+        self._start(RectEditor)
 
-    def start_ellipse_editor(self, window):
-        self.set_mode(window, EllipseEditor(self.pcshape), "еліпси")
+    def start_ellipse_editor(self):
+        self._start(EllipseEditor)
 
     def on_lbdown(self, canvas, event):
         if self.pse:
@@ -41,3 +39,10 @@ class ShapeObjectsEditor:
     def on_paint(self, canvas):
         if self.pse:
             self.pse.on_paint(canvas)
+
+    def on_init_menu_popup(self, checks):
+        if self.pse:
+            self.pse.on_init_menu_popup(checks)
+        else:
+            for var in checks:
+                var.set(False)
